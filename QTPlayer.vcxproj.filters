@@ -40,11 +40,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_DisplayMediaTimer.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="QTPlayer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GeneratedFiles\Release\moc_DisplayMediaTimer.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_QTPlayer.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -52,8 +52,11 @@
     <ClCompile Include="GeneratedFiles\Release\moc_QTPlayer.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_QTPlayer.cpp">
-      <Filter>Generated Files</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ReadPacketsThread.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ReadPacketsThread.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_VideoOpenGLWidget.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -61,102 +64,137 @@
     <ClCompile Include="GeneratedFiles\Release\moc_VideoOpenGLWidget.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="VideoOpenGLWidget.cpp">
+    <ClCompile Include="Audio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PacketQueue.cpp">
+    <ClCompile Include="DisplayMediaTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FrameQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ImageFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Media.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Video.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Audio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ReadPacketsThread.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_DisplayMediaTimer.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_DisplayMediaTimer.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="DisplayMediaTimer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_ReadPacketsThread.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_ReadPacketsThread.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageFilter.cpp">
+    <ClCompile Include="PacketQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="QImageHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="QTPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ReadPacketsThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Video.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoOpenGLWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_QTPlayer.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="QTPlayer.h">
-      <Filter>Header Files</Filter>
+    <CustomBuild Include="VideoOpenGLWidget.ui">
+      <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="QTPlayer.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="QTPlayer.qrc">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="VideoOpenGLWidget.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="VideoOpenGLWidget.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Video.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="DisplayMediaTimer.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="QTPlayer.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="ReadPacketsThread.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="Audio.h">
+    <CustomBuild Include="VideoOpenGLWidget.h">
       <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="QTPlayer.qrc">
+      <Filter>Resource Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GeneratedFiles\ui_QTPlayer.h">
+    <ClInclude Include="GeneratedFiles\ui_VideoOpenGLWidget.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_VideoOpenGLWidget.h">
+    <ClInclude Include="GeneratedFiles\ui_QTPlayer.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="FrameQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PacketQueue.h">
+    <ClInclude Include="ImageFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Media.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ImageFilter.h">
+    <ClInclude Include="PacketQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="QImageHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Video.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
+    <None Include="Resources\titleBar.css">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\bb.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\close.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\max.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\min.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\restore.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\PauseH.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\PauseN.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\PauseP.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\PlayD.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\PlayH.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\PlayN.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\PlayP.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

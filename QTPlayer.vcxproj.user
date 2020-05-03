@@ -4,8 +4,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <QTDIR>E:\qtnine\5.9.1\msvc2015</QTDIR>
     <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
-    <LocalDebuggerWorkingDirectory>../../bin/</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>F:\FFMpeg\QTFFmpegSDLPlayer\bin</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommand>F:\FFMpeg\QTFFmpegSDLPlayer\bin\QTPlayer.exe</LocalDebuggerCommand>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <QTDIR>E:\qtnine\5.9.1\msvc2015</QTDIR>
