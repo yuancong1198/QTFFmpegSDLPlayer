@@ -52,13 +52,13 @@ void ReadPacketsThread::run()
 			msleep(10);
 			continue;
 		}
+        //未解码的音视频码流->YUV/PCM 
 		int ret = av_read_frame(media->getAVFormatContext(), &packet);//读帧音视频包
 		if (ret < 0)
 		{
 			if (ret == AVERROR_EOF) {//读包出错
 				break;
 			}
-				
 			if (media->getAVFormatContext()->pb->error == 0) // 没有错误就等待下次读
 			{
 				locker.unlock();
@@ -67,16 +67,14 @@ void ReadPacketsThread::run()
 			}
 			else {
 				break;
-			}
-				
+			}	
 		}
-		if (media->audio!=nullptr&& packet.stream_index == media->getAudioStreamIndex()) // 音频包队列此处入队
+		if (media->audio!=nullptr&& packet.stream_index == media->getAudioStreamIndex()) // 音频包队列此处入队(未解码的视频数据放入帧缓冲区)
 		{
 			locker.unlock();
 			media->enqueueAudioPacket(packet);
 		}
-
-		else if (media->video != nullptr&& packet.stream_index == media->getVideoStreamIndex()) // 视频包队列此处入队
+		else if (media->video != nullptr&& packet.stream_index == media->getVideoStreamIndex()) // 视频包队列此处入队(未解码的音频数据放入帧缓冲区)
 		{
 			locker.unlock();
 			media->enqueueVideoPacket(packet);
@@ -84,7 +82,7 @@ void ReadPacketsThread::run()
 		else {
 			av_packet_unref(&packet);
 		}
-		
+        //未解码的音视频码流->YUV/PCM^
 	}
 	if(packet.size>=0)
 	    av_packet_unref(&packet);//包没数据不能释放

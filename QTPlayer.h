@@ -28,7 +28,7 @@ public slots:
 	void sliderRelease();
 	void play();
 	void setVolume(int volume);
-	
+    void sliderMoving(int pos);
 signals:
 	void sendPos(float pos);
 private:

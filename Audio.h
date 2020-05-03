@@ -39,12 +39,12 @@ public:
 private:
 	
 	AVCodecContext *audioContext;//音频解码器上下文
-	AVStream *stream;   //音频流
-	double audioClock; // audio clock
-	PacketQueue audiaPackets;
-	uint8_t *audioBuff;       // 解码后数据的缓冲空间
-	uint32_t audioBuffSize;  // buffer中的字节数
-	uint32_t audioBuffIndex; // buffer中未发送数据的index
+	AVStream *stream;   //存储着音频流信息的一帧音频帧
+	double audioClock; // 音频的显示时间戳
+	PacketQueue audiaPackets;   //帧缓冲区（未解码的音频帧队列）
+	uint8_t *audioBuff;       // PCM类型bufffer数据首地址，解码后数据的缓冲空间首地址
+	uint32_t audioBuffSize;  // PCM类型buffer中的字节数
+	uint32_t audioBuffIndex; //PCM类型 buffer中未发送数据的index
 	int streamIndex = -1;
 	bool isPlay = false;
 
@@ -57,4 +57,4 @@ void audioCallback(void* userdata, Uint8 *stream, int len);
 /**
 * 解码Avpacket中的数据填充到缓冲空间
 */
-int audioDecodeFrame(Audio*audio, uint8_t *audioBuffer, int bufferSize);
+int audioDecodeFrame(Audio*audio, uint8_t *audioBuffer);

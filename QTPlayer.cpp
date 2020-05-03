@@ -46,8 +46,9 @@ QTPlayer::QTPlayer(QWidget *parent)
 	connect(rgbAction, &QAction::triggered, this, &QTPlayer::gray2Rgb);
 	connect(grayAction, &QAction::triggered, this, &QTPlayer::rgb2Gray);
 	connect(netAddressAction, &QAction::triggered, this, &QTPlayer::netAddressInput);
-	 
+    connect(ui.playslider, &QSlider::valueChanged, this, &QTPlayer::sliderMoving);
 	startTimer(40);
+    //软件启动时，先启动解析模块的现场。
 	ReadPacketsThread *readPacketsThread = ReadPacketsThread::getInstance();
 	readPacketsThread->start();
 
@@ -152,7 +153,7 @@ void QTPlayer::mouseMoveEvent(QMouseEvent *event) {
 // Qualifier:选择打开视频文件
 //************************************
 void QTPlayer::openVideoFile() {
-	QString fileName = QFileDialog::getOpenFileName(this, "please select your video file!");
+	QString fileName = QFileDialog::getOpenFileName(NULL, "please select your video file!");
 	if (fileName.isEmpty()) {
 		return;
 	}
@@ -163,6 +164,8 @@ void QTPlayer::openVideoFile() {
 		&& postfix != QString::fromLocal8Bit("flv")
 		&& postfix != QString::fromLocal8Bit("avi")
 		&& postfix != QString::fromLocal8Bit("mkv")
+        && postfix != QString::fromLocal8Bit("ts")
+        && postfix != QString::fromLocal8Bit("mov")
 		) {
 		return;
 	}
@@ -197,6 +200,12 @@ void QTPlayer::setVolume(int volume) {
 	pos = (float)ui.volumeSlider->value() / (float)(ui.volumeSlider->maximum() + 1);
 	if (Media::getInstance()->getAVFormatContext())
 	    Media::getInstance()->audio->setVolume(pos*SDL_MIX_MAXVOLUME);
+}
+
+
+void QTPlayer::sliderMoving(int pos)
+{
+/*    if(pos = )*/
 }
 
 //************************************
@@ -245,10 +254,16 @@ void QTPlayer::hideBottomInAnimation()
 //************************************
 void QTPlayer::timerEvent(QTimerEvent * e)
 {
+    double pts = (double)Media::getInstance()->pts * 1000;
+    double total = (double)Media::getInstance()->totalMs;
+    if (pts / 1000 >= total)
+    {
+        if (Media::getInstance()->getAVFormatContext())
+            Media::getInstance()->close();
+        return;
+    }
 	if (Media::getInstance()->totalMs > 0)
 	{
-		double pts = (double)Media::getInstance()->pts * 1000;
-		double total = (double)Media::getInstance()->totalMs;
 		double rate = pts / total;
 		if (!isPressSlider&&isPlay) {
             ui.playslider->setValue(rate);

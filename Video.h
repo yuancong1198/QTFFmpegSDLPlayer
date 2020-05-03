@@ -9,6 +9,10 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
+/*
+    视频解码线程：负责将未被解码的码流进行解码操作。处于帧缓冲区和显示缓冲区之间，输入码流，输出PCM帧数据。
+*/
+
 class Video:public QThread
 {
 public:
@@ -20,9 +24,9 @@ public:
 	AVCodecContext * getAVCodecCotext();
 	void enqueuePacket(const AVPacket &pkt);
 
-	AVFrame * dequeueFrame();
+	AVFrame * dequeueFrame();   //显示帧出列
 	void setStreamIndex(const int &streamIndex);
-	int getVideoQueueSize();
+	int getVideoQueueSize();//获取帧缓冲区的当前大小
 	void setVideoStream(AVStream *& stream);
 	AVStream * getVideoStream();	
 	void setAVCodecCotext(AVCodecContext *avCodecContext);
@@ -32,22 +36,20 @@ public:
 	double getFrameLastPts();
 	void setFrameLastDelay(const double &frameLastDelay);
 	double getFrameLastDelay();
-	void setVideoClock(const double &videoClock);
-	double getVideoClock();
 	int getVideoFrameSiez();
 	SwsContext *swsContext = NULL;
 	void clearFrames();
 	void clearPackets();
 private:
-	double frameTimer;         // Sync fields
-	double frameLastPts;
-	double frameLastDelay;
-	double videoClock;
-	PacketQueue *videoPackets;	
-	FrameQueue frameQueue;
+	double frameTimer;         // Sync fields 音视同步时，解析视频帧的定时器参数
+	double frameLastPts;        //上一视频帧的显示时间戳，默认为0
+	double frameLastDelay; //上一帧与上上帧之间的时间间隔
+	double videoClock;          //视频的时间时钟
+	PacketQueue *videoPackets;	            //未解码码流的消息队列
+	FrameQueue frameQueue;                //已解码PCM的消息队列
 	AVStream *stream;
 	int streamIndex = -1;
 	QMutex mutex;
-	AVCodecContext *videoContext;
+	AVCodecContext *videoContext;       //解码器上下文
 };
 

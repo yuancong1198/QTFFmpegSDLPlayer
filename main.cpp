@@ -11,6 +11,8 @@
 #pragma comment(lib,"SDL2.lib")
 #pragma comment(lib,"SDL2main.lib")
 
+extern "C" { FILE __iob_func[3] = { *stdin,*stdout,*stderr }; }
+
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);

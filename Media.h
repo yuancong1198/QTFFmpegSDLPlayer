@@ -7,6 +7,11 @@ extern "C" {
 #include <libavformat\avformat.h>
 
 }
+/**
+    	解析模块的主要作用：负责解析各种封装格式。
+        解析模式的输入：由IO模块读取的二进制数据。
+        解析模式的输出：音视频的媒体信息、未解码的音频包、未解码的视频包。
+ */
 class Media
 {
 public:
@@ -24,14 +29,14 @@ public:
 	void enqueueAudioPacket(const AVPacket &packet);
 	void startAudioPlay();
 	AVFormatContext *getAVFormatContext();
-	Video *video;
-	Audio *audio;
 	void close();
-	int totalMs = 0;
-	int pts = 0;
+    Video *video;
+    Audio *audio;
+	int totalMs = 0;//当前视频的总播放时长
+	int pts = 0; //播放器的主时钟
 private:
-	AVFormatContext *pFormatCtx;
     Media();
+	AVFormatContext *pFormatCtx;
 	const char *filename;
 	QMutex mutex;
 };

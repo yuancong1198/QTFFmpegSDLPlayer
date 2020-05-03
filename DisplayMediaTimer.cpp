@@ -51,18 +51,18 @@ void DisplayMediaTimer::synchronizeAudioAndVideo()
 		
 	}
 	AVFrame * frame;
-	frame = Media::getInstance()->video->dequeueFrame();
+	frame = Media::getInstance()->video->dequeueFrame(); //获取已解码的视频帧
 	
 	// 将视频同步到音频上，计算下一帧的延迟时间
-	double current_pts = *(double*)frame->opaque;
-	double delay = current_pts - Media::getInstance()->video->getFrameLastPts();
-	if (delay <= 0 || delay >= 1.0)
+	double current_pts = *(double*)frame->opaque;//获取当前帧的时间戳
+	double delay = current_pts - Media::getInstance()->video->getFrameLastPts();//当前视频帧与上一帧的时间间隔
+	if (delay <= 0 || delay >= 1.0)//出现了一帧异常视频帧
 		delay = Media::getInstance()->video->getFrameLastDelay();
 	Media::getInstance()->video->setFrameLastDelay(delay);
 	Media::getInstance()->video->setFrameLastPts(current_pts);
 	// 当前显示帧的PTS来计算显示下一帧的延迟
-	double ref_clock = Media::getInstance()->audio->getAudioClock();
-	double diff = current_pts - ref_clock;// diff < 0 => video slow,diff > 0 => video quick
+	double master_clock = Media::getInstance()->audio->getAudioClock();//主时间戳
+	double diff = current_pts - master_clock;// diff < 0 => video slow,diff > 0 => video quick
 	double threshold = (delay > SYNC_THRESHOLD) ? delay : SYNC_THRESHOLD;
 	if (fabs(diff) < NOSYNC_THRESHOLD) // 不同步
 	{
@@ -108,6 +108,8 @@ void DisplayMediaTimer::synchronizeAudioAndVideo()
 		linesize[0] = imageWidth * 4;
 	}
 	
+    auto a = Media::getInstance()->video->swsContext;
+    auto b = frame;
 	int h = sws_scale(Media::getInstance()->video->swsContext, frame->data, frame->linesize, 0, videoCtx->height,
 		data,
 		linesize

@@ -59,6 +59,7 @@ bool Audio::audioClose() {
 bool Audio::audioPlay()
 {
 	SDL_AudioSpec desired;
+    if (!audioContext) return false;
 	desired.freq = audioContext->sample_rate;
 	desired.channels = audioContext->channels;
 	desired.format = AUDIO_S16SYS;
@@ -70,7 +71,7 @@ bool Audio::audioPlay()
 	{
 		return false;
 	}
-	SDL_PauseAudio(0); // playing
+	SDL_PauseAudio(0); // playing 0时，播放音频
 	
 	return true;
 }
@@ -157,7 +158,7 @@ AVPacket Audio::dequeuePacket()
 // FullName:  Audio::getAudioBuff
 // Access:    public 
 // Returns:   QT_NAMESPACE::uint8_t*
-// Qualifier:获取音频缓冲
+// Qualifier:获取音频缓冲首地址
 //************************************
 uint8_t* Audio::getAudioBuff()
 {
@@ -244,7 +245,7 @@ double Audio::getAudioClock()
 // FullName:  Audio::setAudioClock
 // Access:    public 
 // Returns:   void
-// Qualifier:设置音频时钟
+// Qualifier:设置音频时钟(某一帧在视频中的时间戳)
 // Parameter: const double & audioClock
 //************************************
 void Audio::setAudioClock(const double & audioClock)
@@ -359,22 +360,22 @@ void audioCallback(void* userdata, Uint8 *stream, int len) {
 
 	SDL_memset(stream, 0, len);
 
-	int audio_size = 0;
+	int audio_size = 0;//当前帧解码后，输入到PCM bufffer中的尺寸大小
 	int len1 = 0;
 	while (len > 0)// 向设备发送长度为len的数据
 	{
-		if (audio->getAudioBuffIndex() >= audio->getAudioBuffSize()) // 缓冲区中无数据
+		if (audio->getAudioBuffIndex() >= audio->getAudioBuffSize()) // PCM bufffer中已无数据，缓冲区中无数据 0<=audioBuffIndex<=audioBuffSize
 		{
 			// 从packet中解码数据
-			audio_size = audioDecodeFrame(audio, audio->getAudioBuff(), sizeof(audio->getAudioBuff()));
+			audio_size = audioDecodeFrame(audio, audio->getAudioBuff());
 			if (audio_size < 0) // 没有解码到数据或出错，填充0
 			{
 				audio->setAudioBuffSize(0);
 				memset(audio->getAudioBuff(), 0, audio->getAudioBuffSize());
 			}
 			else
-				audio->setAudioBuffSize(audio_size);
-
+				audio->setAudioBuffSize(audio_size); //设置缓冲区长度
+            //设置缓冲区的当前索引值为0
 			audio->setAudioBuffIndex(0);
 		}
 		len1 = audio->getAudioBuffSize() - audio->getAudioBuffIndex(); // 缓冲区中剩下的数据长度
@@ -392,10 +393,11 @@ void audioCallback(void* userdata, Uint8 *stream, int len) {
 /**
 * 解码Avpacket中的数据填充到缓冲空间
 */
-int audioDecodeFrame(Audio*audio, uint8_t *audioBuffer, int bufferSize) {
+int audioDecodeFrame(Audio*audio, uint8_t *audioBuffer) {
+    //AVFrame中存储的是经过解码后的原始数据
 	AVFrame *frame = av_frame_alloc();
 	int data_size = 0;
-	AVPacket pkt = audio->dequeuePacket();
+	AVPacket pkt = audio->dequeuePacket(); //从音频缓存队列中获取音频码流
 	SwrContext *swr_ctx = nullptr;
 	static double clock = 0;
 
@@ -406,23 +408,23 @@ int audioDecodeFrame(Audio*audio, uint8_t *audioBuffer, int bufferSize) {
 		return -1;
 	}	
 	 
-	if (pkt.pts != AV_NOPTS_VALUE)
+	if (pkt.pts != AV_NOPTS_VALUE)//存在显示时间戳的音频帧，通过此帧来获取该音频帧的时间戳
 	{
 		if (audio->getStream() == nullptr)
 			return -1;
-		audio->setAudioClock(av_q2d(audio->getStream()->time_base) * pkt.pts);
+        audio->setAudioClock(av_q2d(audio->getStream()->time_base) * pkt.pts);//计算出某一帧在视频中的时间戳(秒) = pts * av_q2d(st->time_base);
 	}
 	if (audio->getAVCodecContext() == nullptr)
 		return -1;
-	int ret = avcodec_send_packet(audio->getAVCodecContext(), &pkt);
+	int ret = avcodec_send_packet(audio->getAVCodecContext(), &pkt); //将音频帧pkt发送到解码器中
 	if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF)
 		return -1;
 
-	ret = avcodec_receive_frame(audio->getAVCodecContext(), frame);
+	ret = avcodec_receive_frame(audio->getAVCodecContext(), frame);//将解码后数据存入PCM(AVFrame)中
 	if (ret < 0 && ret != AVERROR_EOF)
 		return -1;
-	int p = (frame->pts *r2d(audio->getStream()->time_base)) * 1000;
-	Media::getInstance()->pts = p;
+	int p = (frame->pts *r2d(audio->getStream()->time_base)) * 1000; //音频的显示时间戳（单位是time_base）
+	Media::getInstance()->pts = p; //主时间使用音频的显示时间戳，用于音视同步
 	// 设置通道数或channel_layout
 	if (frame->channels > 0 && frame->channel_layout == 0)
 		frame->channel_layout = av_get_default_channel_layout(frame->channels);

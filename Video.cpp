@@ -26,7 +26,7 @@ Video::~Video()
 // FullName:  Video::getStreamIndex
 // Access:    public 
 // Returns:   int
-// Qualifier: 获取流下标
+// Qualifier: 获取当前视频流在fffpeg中的流下标
 //************************************
 int Video::getStreamIndex()
 {
@@ -88,20 +88,17 @@ AVFrame * Video::dequeueFrame()
 // FullName:  Video::synchronizeVideo
 // Access:    public 
 // Returns:   double
-// Qualifier: 计算同步视频的播放时间
+// Qualifier: 当时间戳为异常时，根据延迟时间来计算同步视频的播放时间
 // Parameter: AVFrame * & srcFrame
 // Parameter: double & pts
 //************************************
 double Video::synchronizeVideo(AVFrame *&srcFrame, double &pts)
 {
-	double frameDelay;
-	if (pts != 0)
-		videoClock = pts; // Get pts,then set video clock to it
-	else
-		pts = videoClock; // Don't get pts,set it to video clock
-	frameDelay = av_q2d(stream->codec->time_base);
-	frameDelay += srcFrame->repeat_pict * (frameDelay * 0.5);
-	videoClock += frameDelay;
+    if (pts == 0)
+        pts = videoClock; //video_clock是视频播放到当前帧时的已播放的时间长度。在synchronize函数中，如果没有得到该帧的PTS就用当前的video_clock来近似
+    double frameDelay = av_q2d(stream->codec->time_base);
+	frameDelay += srcFrame->repeat_pict * (frameDelay * 0.5);//srcFrame->repeat_pict含义:解码时，每帧图片延迟的时间
+	videoClock = pts+ frameDelay;
 	return pts;
 }
 
@@ -184,30 +181,31 @@ void Video::run()
 	while (!isExit)
 	{
 		QMutexLocker locker(&mutex);
-		if (frameQueue.getQueueSize() >= FrameQueue::capacity) {//视频帧多于30帧就等待消费
+		if (frameQueue.getQueueSize() >= FrameQueue::capacity) {//显示缓冲区的帧数据多于30帧就等待消费（暂时解码）
 			locker.unlock();
             msleep(100);
 			continue;
 		}			
-		if (videoPackets->getPacketSize() == 0) {//没帧等待帧入队
+		if (videoPackets->getPacketSize() == 0) {//如果帧缓冲区没有数据了，那么就暂停解码（等待帧缓冲区添加数据）
 			locker.unlock();
 			msleep(100);
 			continue;
 		}
-		pkt = videoPackets->deQueue();//出队
+		pkt = videoPackets->deQueue();//出队（从帧缓冲区获取包数据）
+        //解码-------------------------------------------------------------------------------------------------------------------------------- -
 		int ret = avcodec_send_packet(videoContext, &pkt);
 		if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF) {
 			continue;
 		}
-			
 		ret = avcodec_receive_frame(videoContext, frame);
 		if (ret < 0 && ret != AVERROR_EOF) {
 			continue;
 		}
-			
-		if ((pts = av_frame_get_best_effort_timestamp(frame)) == AV_NOPTS_VALUE)
+        //解码-------------------------------------------------------------------------------------------------------------------------------- -
+        //有可能存在调用av_frame_get_best_effort_timestamp得不到一个正确的PTS
+		if ((pts = av_frame_get_best_effort_timestamp(frame)) == AV_NOPTS_VALUE)//如果该帧不存在显示时间戳，则将时间戳设置为0
 			pts = 0;
-		pts *= av_q2d(stream->time_base);
+		pts *= av_q2d(stream->time_base); //av_q2d将一个AVRational时间基转换为双精度浮点数显示时间戳
 		pts = synchronizeVideo(frame, pts);//同步视频播放时间
 		frame->opaque = &pts;	
 		frameQueue.enQueue(frame);//帧入队
@@ -276,31 +274,6 @@ void Video::setFrameLastDelay(const double & frameLastDelay)
 double Video::getFrameLastDelay()
 {
 	return frameLastDelay;
-}
-
-//************************************
-// Method:    setVideoClock
-// FullName:  Video::setVideoClock
-// Access:    public 
-// Returns:   void
-// Qualifier:设置视频时钟
-// Parameter: const double & videoClock
-//************************************
-void Video::setVideoClock(const double & videoClock)
-{
-	this->videoClock = videoClock;
-}
-
-//************************************
-// Method:    getVideoClock
-// FullName:  Video::getVideoClock
-// Access:    public 
-// Returns:   double
-// Qualifier:获取视频时钟
-//************************************
-double Video::getVideoClock()
-{
-	return videoClock;
 }
 
 //************************************
