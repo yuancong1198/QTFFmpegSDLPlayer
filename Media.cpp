@@ -68,40 +68,44 @@ Media *  Media::config() {
 		return nullptr;
 	}
 
-	// 设置音频状态
-	AVCodec *pCodec = avcodec_find_decoder(pFormatCtx->streams[audio->getStreamIndex()]->codec->codec_id);
-	if (!pCodec) {
-		return nullptr;
-	}
- 
-	audio->setStream(pFormatCtx->streams[audio->getStreamIndex()]);
+    // 设置音频状态
+    //通过解码器ID来获取相应的解码器。
+    AVCodec *pCodec = avcodec_find_decoder(pFormatCtx->streams[audio->getStreamIndex()]->codec->codec_id);
+    if (!pCodec) {
+        return nullptr;
+    }
 
-	audio->setAVCodecContext(avcodec_alloc_context3(pCodec));
-	
-	if (avcodec_copy_context(audio->getAVCodecContext(), pFormatCtx->streams[audio->getStreamIndex()]->codec) != 0) {
-		return nullptr;
-	}
+    audio->setStream(pFormatCtx->streams[audio->getStreamIndex()]);//AVStream是存储每一个视频/音频流信息的结构体
 
-	avcodec_open2(audio->getAVCodecContext(), pCodec, nullptr);
+    audio->setAVCodecContext(avcodec_alloc_context3(pCodec));
 
-	// 设置视频状态
-	AVCodec *pVCodec = avcodec_find_decoder(pFormatCtx->streams[video->getStreamIndex()]->codec->codec_id);
+    if (avcodec_copy_context(audio->getAVCodecContext(), pFormatCtx->streams[audio->getStreamIndex()]->codec) != 0) {
+        return nullptr;
+    }
+    //用于初始化一个视音频编解码器的AVCodecContext
+    avcodec_open2(audio->getAVCodecContext(), pCodec, nullptr);
+
+    // 设置视频状态
+   auto pCodecCtx = pFormatCtx->streams[video->getStreamIndex()]->codec;	//指向AVCodecContext的指针
+   AVCodec*  pVCodec = avcodec_find_decoder(pCodecCtx->codec_id);	//指向AVCodec的指针.查找解码器
 	if (!pVCodec) {
 		return nullptr;
 	}
 
 	video->setVideoStream(pFormatCtx->streams[video->getStreamIndex()]);
 	 
-	video->setAVCodecCotext(avcodec_alloc_context3(pVCodec));
+	video->setAVCodecCotext(avcodec_alloc_context3(pVCodec));//创建AVCodecContext结构体(保存视音频流信息参数)并传入到video对象中
 	if (avcodec_copy_context(video->getAVCodecCotext(), pFormatCtx->streams[video->getStreamIndex()]->codec) != 0) {
 		return nullptr;
 	}
-	
+	//用于初始化一个视音频编解码器的AVCodecContext
 	avcodec_open2(video->getAVCodecCotext(), pVCodec, nullptr);
 
 	video->setFrameTimer(static_cast<double>(av_gettime()) / 1000000.0);//设置初始视频帧时间用于音视同步
 	video->setFrameLastDelay(40e-3) ;//计算时间，TODO*/
 	audio->audioPlay();
+
+    //线程开始播放
 	ReadPacketsThread::getInstance()->setPlaying(true);
 	DisplayMediaTimer::getInstance()->setPlay(true);
 	return this;
