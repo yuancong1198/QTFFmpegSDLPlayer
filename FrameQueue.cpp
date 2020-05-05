@@ -39,7 +39,7 @@ AVFrame * FrameQueue::deQueue()
 	bool ret = true;
 	AVFrame *tmp;
 	QMutexLocker locker(&mutex);
-	while (true)
+	while (true)//”√¿¥∑¿÷πŒ±ªΩ–—
 	{
 		if (!queue.empty())
 		{
