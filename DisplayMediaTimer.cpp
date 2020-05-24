@@ -55,18 +55,18 @@ void DisplayMediaTimer::synchronizeAudioAndVideo()
 	
 	// 将视频同步到音频上，计算下一帧的延迟时间
 	double current_pts = *(double*)frame->opaque;//获取当前帧的时间戳
-	double delay = current_pts - Media::getInstance()->video->getFrameLastPts();//当前视频帧与上一帧的时间间隔
+	double delay = current_pts - Media::getInstance()->video->getFrameLastPts();//当前视频帧与上一帧的延迟时间
 	if (delay <= 0 || delay >= 1.0)//出现了一帧异常视频帧
 		delay = Media::getInstance()->video->getFrameLastDelay();
-	Media::getInstance()->video->setFrameLastDelay(delay);
-	Media::getInstance()->video->setFrameLastPts(current_pts);
+	Media::getInstance()->video->setFrameLastDelay(delay);//更新延迟时间
+	Media::getInstance()->video->setFrameLastPts(current_pts);//更新上一帧的显示时间
 	// 当前显示帧的PTS来计算显示下一帧的延迟
 	double master_clock = Media::getInstance()->audio->getAudioClock();//主时间戳
 	double diff = current_pts - master_clock;// diff < 0 => video slow,diff > 0 => video quick
-	double threshold = (delay > SYNC_THRESHOLD) ? delay : SYNC_THRESHOLD;
+	double threshold = (delay > SYNC_THRESHOLD) ? delay : SYNC_THRESHOLD;//两帧之间有个最小的间隔时间
 	if (fabs(diff) < NOSYNC_THRESHOLD) // 不同步
 	{
-		if (diff <= -threshold) // 慢了，delay设为0
+		if (diff <= -threshold) // 慢了，delay设为0，视频时间在音频时间之前。
 			delay = 0;
 		else if (diff >= threshold) // 快了，加倍delay
 			delay *= 2;

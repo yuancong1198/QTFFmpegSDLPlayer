@@ -96,9 +96,11 @@ double Video::synchronizeVideo(AVFrame *&srcFrame, double &pts)
 {
     if (pts == 0)
         pts = videoClock; //video_clock是视频播放到当前帧时的已播放的时间长度。在synchronize函数中，如果没有得到该帧的PTS就用当前的video_clock来近似
-    double frameDelay = av_q2d(stream->codec->time_base);
-	frameDelay += srcFrame->repeat_pict * (frameDelay * 0.5);//srcFrame->repeat_pict含义:解码时，每帧图片延迟的时间
-	videoClock = pts+ frameDelay;
+    else
+        videoClock = pts;
+    double frameDelay = av_q2d(stream->codec->time_base);//通过时间基获取每一帧的间隔
+	frameDelay += srcFrame->repeat_pict * (frameDelay * 0.5);//存在重复的帧数
+	videoClock = pts+ frameDelay;//加上帧的间隔就取得下一帧的PTS
 	return pts;
 }
 
@@ -202,7 +204,7 @@ void Video::run()
 			continue;
 		}
         //解码-------------------------------------------------------------------------------------------------------------------------------- -
-        //有可能存在调用av_frame_get_best_effort_timestamp得不到一个正确的PTS
+        //有可能存在frame内的显示时间戳无效的情况，那么调用av_frame_get_best_effort_timestamp推算出一个合理的显示时间戳。
 		if ((pts = av_frame_get_best_effort_timestamp(frame)) == AV_NOPTS_VALUE)//如果该帧不存在显示时间戳，则将时间戳设置为0
 			pts = 0;
 		pts *= av_q2d(stream->time_base); //av_q2d将一个AVRational时间基转换为双精度浮点数显示时间戳
